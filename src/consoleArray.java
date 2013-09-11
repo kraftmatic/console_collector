@@ -14,6 +14,10 @@ import javax.swing.*;
 public class consoleArray extends JFrame{
 
 
+	//  Both the console list and the game list are handled by separate arraylists.  This initializes both
+	//  those arrays as well as creates a perpetual window that will display any arraylist data that is
+	//  recorded.
+	
 	private static final long serialVersionUID = 5797645173365007976L;
 	private ArrayList<Console> consoleArray = new ArrayList<Console>();
 	private ArrayList<Game> gameArray = new ArrayList<Game>();
@@ -21,6 +25,8 @@ public class consoleArray extends JFrame{
 	JFrame outputFrame = new JFrame("Current Console List");
 	JTextArea outputText = new JTextArea(8,40);
 
+	
+	//  The main GUI window has all of the buttons for adding,removing,sorting,etc.
 	
 	public void cGui(){
 		
@@ -31,6 +37,9 @@ public class consoleArray extends JFrame{
 		mainFrame.setSize(290,140);
 		mainFrame.setLocation(20,20);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//  To get all the buttons I needed in I created a swing border layout with panels at the top and bottom to which I added
+		//  grid layouts.  I could have done the whole thing with a grid but I like the stylization a bit more like this.
 		
 		BorderLayout flo = new BorderLayout();
 		GridLayout floBottom = new GridLayout(1,2);
@@ -112,6 +121,8 @@ public class consoleArray extends JFrame{
 		mainFrame.setVisible(true);
 	}
 	
+	//  addConsolePrompt() pops up the GUI with a place to enter a name and click a submit button.
+	
 	public void addConsolePrompt(){
 		
 		final JFrame addConsole = new JFrame("Add New Console");
@@ -122,8 +133,15 @@ public class consoleArray extends JFrame{
 
 	    ActionListener submitClick = new ActionListener() {
 	        public void actionPerformed(ActionEvent actionEvent) {
+	        	
+	        	//  Once the name is submitted a new Console object is created and the name is injected into it.
+	        	
 	        	Console tempConsole = new Console("initialize", "initialize");
 	        	tempConsole.setName(consoleName.getText());
+	        	
+	        	//  Adding multiple consoles led to scope issues so I moved the actual arraylist append to a different
+	        	//  function call.  Once it is added the temporary object is disposed of.
+	        	
 	        	addConsole(tempConsole);
 	        	addConsole.dispose();
 	        }
@@ -151,6 +169,10 @@ public class consoleArray extends JFrame{
 		final JTextField gameName = new JTextField("          Enter Game Name          ");
 		JButton submit = new JButton("Submit");
 
+		//  When adding games I wanted to make sure you could only add ones that were for the consoles you have 
+		//  previously added.  This creates an array of strings and scans in the console names that already exist and
+		//  then seeds those console names into a combo box.
+		
 		String[] consoleNames = new String[consoleArray.size()];
 		int i = 0;
 		for(Console temp : consoleArray){
@@ -164,6 +186,9 @@ public class consoleArray extends JFrame{
 	        public void actionPerformed(ActionEvent actionEvent) {
 	        	
 	            String selectedConsole =  (String) gameBox.getSelectedItem();
+	            
+	            //  Much like the console I had to outsource the actual arraylist append to a different function.  Here
+	            //  a temporary Game object is created and its values added before being submitted for adding.
 	            
 	        	Game tempGame = new Game("initialize","initialize");
 	        	tempGame.setName(gameName.getText());
@@ -187,11 +212,15 @@ public class consoleArray extends JFrame{
 	
 	public void addConsole(Console thisOne){
 		
+		//  New console is added to the arraylist and the list window is refreshed with new data.
+		
 		consoleArray.add(thisOne);
 		list();
 	}
 
 	public void addGame(Game thisOne){
+		
+		//  New game is added to the arraylist and the list window is refreshed with new data.
 		
 		gameArray.add(thisOne);
 		list();
@@ -205,6 +234,7 @@ public class consoleArray extends JFrame{
 		BorderLayout removeFlo = new BorderLayout();
 		
 		// Populating the combo box with a string of all the current console names.
+		
 		String[] consoleNames = new String[consoleArray.size()];
 		int i = 0;
 		for(Console temp : consoleArray){
@@ -216,17 +246,25 @@ public class consoleArray extends JFrame{
 		JButton removeButton = new JButton("Remove");
 		
 		// Removing the specific selected object when the button is clicked
-	      ActionListener removeSubmit = new ActionListener() {
+	    
+		ActionListener removeSubmit = new ActionListener() {
 		        public void actionPerformed(ActionEvent actionEvent) {
 		        	
 		            String selectedConsole =  (String) consoleBox.getSelectedItem();
-		        	
+		
+		            //  Easiest way I found was to iterate through the arraylist and remove any matching entries.  Normally
+		            //  it should only remove one console, but if you play with it and have two identical console names it will
+		            //  remove both.
+		            
 		    		for (Iterator<Console> iterator = consoleArray.iterator(); iterator.hasNext(); ) {
 		  			  Console px = iterator.next();
 		  			  if(px.getName().equals(selectedConsole)){
 		  			    iterator.remove();
 		  			  }
 		  			}
+		
+		    		//  Side note:  This doesn't remove the games associated with the console.  If you re-add the console
+		    		//  at a later time, the games will all reappear.  Don't know if I want to change that.
 		    		
 		    		list();
 		    		removeFrame.dispose();
@@ -253,6 +291,7 @@ public class consoleArray extends JFrame{
 		BorderLayout removeFlo = new BorderLayout();
 		
 		// Populating the combo box with a string of all the current console names.
+
 		String[] gameNames = new String[gameArray.size()];
 		int i = 0;
 		for(Game temp : gameArray){
@@ -264,7 +303,8 @@ public class consoleArray extends JFrame{
 		JButton removeButton = new JButton("Remove");
 		
 		// Removing the specific selected object when the button is clicked
-	      ActionListener removeSubmit = new ActionListener() {
+
+		ActionListener removeSubmit = new ActionListener() {
 		        public void actionPerformed(ActionEvent actionEvent) {
 		        	
 		            String selectedGame =  (String) gameBox.getSelectedItem();
@@ -293,12 +333,17 @@ public class consoleArray extends JFrame{
 	}
 	
 	public void sortConsole(){
+		
+		//  Right now all that is available is an alphabetical sort, and it sorts both the games AND consoles.
+		
 		Collections.sort(consoleArray, new sortConsoleByName());
 		Collections.sort(gameArray, new sortGameByName());
 		list();
 	}
 	
 	public void list(){
+		
+		//  This just copies over the list window and repopulates it with the new data
 		
 		outputFrame.setSize(300, 300);
 		outputFrame.setLocation(450, 20);
@@ -310,6 +355,9 @@ public class consoleArray extends JFrame{
 		for(Console temp : consoleArray){
 			outputText.append(temp.getName() + System.lineSeparator());
 			
+			//  After each individual console is printed, the Game arraylist is scanned for games that match
+			//  the individual console name.
+			
 			for(Game tempGame : gameArray){
 				if(temp.getName().equals(tempGame.getConsole())){
 				outputText.append("       " + tempGame.getName() + System.lineSeparator());
@@ -320,6 +368,10 @@ public class consoleArray extends JFrame{
 	}
 	
 	public void save(){
+		
+		//  The save is a two-step process first saving the serialized console arraylist to a file then
+		//  doing the same for the game arraylist
+		
 		try{  
 
 			FileOutputStream saveFile = new FileOutputStream("SaveConsoles.sav");
@@ -358,6 +410,9 @@ public class consoleArray extends JFrame{
 
 	@SuppressWarnings({ "resource", "unchecked" })
 	public void restore(){
+		
+		//  Works the same as saving by first attempting to load a specific console save file (SaveConsoles.sav)
+		//  and then the game save file (SaveGames.sav)
 		
 		try{	
 			FileInputStream fis = new FileInputStream("SaveConsoles.sav");

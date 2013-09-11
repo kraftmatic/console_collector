@@ -10,10 +10,15 @@ public class Game implements Serializable{
 	
 	Game(String thisName, String thisConsole){
 		
+		//  Right now this object just contains the game name and associated console.  To-do:  developer, publisher,
+		//  release date, notes.
+		
 		name = thisName;
 		console = thisConsole;
 		
 	}
+	
+	//  Setters and getters
 	
 	public void setConsole(String thisConsole){
 		console = thisConsole;
