@@ -25,5 +25,5 @@ Bugs
 Update Log
 =================
 
-(9.11.13) V1.01  Added more verbose comments in code.
-(9.10.13) V1.0   Uploaded functional program.
+* (9.11.13) V1.01  Added more verbose comments in code.
+* (9.10.13) V1.0   Uploaded functional program.
